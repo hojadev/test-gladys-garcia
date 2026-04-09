@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Test: ¿Estás Lista para Vivir del Coaching? | Gladys Garcia Coach",
   description: "Descubre en qué etapa está tu negocio de coaching y qué necesitas para llevarlo al siguiente nivel.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import React, { useState } from "react"
 import Toast from "typescript-toastify"
 import { survey } from "@/mocks/testMock"
 import { ResultTier } from "@/app/types"
@@ -9,36 +9,70 @@ import SurveyCard from "@/components/SurveyCard"
 import ResultCard from "@/components/ResultCard"
 import DecorativeBlobs from "@/components/DecorativeBlobs"
 
+// WhatsApp number (with country code, no +)
+const WA_NUMBER = "5215543400295" // WhatsApp Mexico number provided by user
+
+// Per-tier contextualised WhatsApp links
+// The message body is pre-filled so Gladys knows which stage the lead is at
+const WA_MESSAGES = {
+  tier1: encodeURIComponent(
+    "Hola Gladys, acabo de hacer tu test y estoy en la Etapa 1 (Gestación). Me gustaría agendar una sesión de diagnóstico para entender cómo empezar. ¿Cuándo tienes disponibilidad?"
+  ),
+  tier2: encodeURIComponent(
+    "Hola Gladys, hice tu test y estoy en la Etapa 2 (Construcción). Quiero dejar de improvisar y tener clientes reales. ¿Podemos hablar sobre la Sesión de Diagnóstico?"
+  ),
+  tier3: encodeURIComponent(
+    "Hola Gladys, hice tu test y estoy en la Etapa 3 (Despegue). Quiero auditar mi negocio y profesionalizar mi estructura. ¿Cuándo podemos agendar?"
+  ),
+}
+
 const RESULT_TIERS: ResultTier[] = [
   {
-    title: "Comenzando el Viaje",
-    subtitle: "Tu coaching tiene potencial — es hora de estructurarlo",
+    title: "El Coach Invisible",
+    subtitle: "Con el título en la mano, pero sin voz en el mercado",
     description:
-      "Aún estás en la etapa de descubrimiento. Puede que tengas el corazón en el coaching pero te faltan las herramientas y la estructura para convertirlo en un negocio real. La buena noticia: con la guía correcta, puedes construir desde cero de forma ordenada y efectiva. Este es el mejor momento para establecer bases sólidas.",
+      "Tienes algo muy valioso: la vocación de ayudar. Pero hoy eso no se ha convertido en un negocio real. Te falta claridad entre tantas herramientas y crees que te falta \"un curso más\" para hacerlo realidad. La verdad es que no te faltan conocimientos de coaching — te falta identidad profesional.",
+    risk: "Que pasen los meses y sigas exactamente igual: con el título, las ganas, pero sin clientes ni ingresos. Y poco a poco, empieces a dudar si esto realmente puede funcionar para ti.",
+    nextStep:
+      "No necesitas más información. Necesitas definir quién eres como coach, a quién ayudas y cómo lo comunicas con claridad. Agenda una sesión de diagnóstico si te cuesta explicar a qué te dedicas, tu contenido no conecta o las conversaciones no avanzan.",
+    ctaLabel: "Agenda tu sesión de diagnóstico →",
+    whatsappUrl: `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGES.tier1}`,
     color: "bg-gradient-to-r from-[#E9CCDB] to-[#EEAE91]",
     emoji: "🌱",
   },
   {
-    title: "En Construcción",
-    subtitle: "Tienes bases — necesitas la estrategia para escalar",
+    title: "El Coach en el Limbo",
+    subtitle: "Sabes mucho, pero no lo estás convirtiendo en clientes",
     description:
-      "Ya tienes idea de lo que haces y para quién, pero aún hay piezas sueltas. Tal vez generates algunos clientes, pero de forma inconsistente. Lo que te falta es un sistema claro: cómo comunicar, cómo vender, cómo cobrar con confianza. Con acompañamiento estratégico puedes dar el salto de \"trabajo esporádico\" a \"negocio predecible\".",
+      "Estás en un punto frustrante: ya sabes que no eres para todo el mundo y tienes algo de estructura, pero tus ingresos son una montaña rusa. Te escondes detrás de \"preparar contenido\" o \"arreglar la web\" para evitar el momento de la venta porque, en el fondo, dudas de tu valor o de cómo sostener tu precio con seguridad.",
+    risk:
+      "El agotamiento. Trabajar mucho en lo que no genera dinero te hará tirar la toalla pronto. Seguir en cosas que no generan ingresos hasta que el cansancio te haga cuestionarte si vale la pena.",
+    nextStep:
+      "Necesitas seguridad, autenticidad y estructura. Un sistema que te permita comunicar tu valor, hacer ofertas claras y cerrar clientes sin forzarte. Saber de coaching y saber sostener un negocio son cosas distintas.",
+    ctaLabel: "Quiero dejar de improvisar y tener clientes reales →",
+    whatsappUrl: `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGES.tier2}`,
     color: "bg-gradient-to-r from-[#EEAE91] to-[#5D6D8F]",
     emoji: "🔨",
   },
   {
-    title: "Lista para Despegar",
-    subtitle: "Tienes claridad — es momento de acelerar",
+    title: "El Coach de Alto Potencial",
+    subtitle: "Lista para la Rentabilidad Real",
     description:
-      "Ya sabes a quién ayudas, cómo lo haces y cuánto cobras. Tu mensaje es claro y hablas con confianza de tu servicio. Ahora el reto es escalar: conseguir más clientes de forma consistente, optimizar tu sistema de ventas y llevar tu negocio al siguiente nivel. Estás lista para resultados más grandes.",
+      "¡Felicidades! Ya validaste tu servicio y tienes claridad. Sin embargo, sientes que tu negocio depende de la suerte, del \"boca a boca\" o de un esfuerzo heroico cada mes. Tienes clientes, pero no tienes un sistema predecible que los traiga y los sostenga de manera consciente.",
+    risk:
+      "El estancamiento. Si no profesionalizas tu estructura ahora, podrías quedarte en un esquema donde tus ingresos dependen siempre de cuánto trabajas.",
+    nextStep:
+      "Pasar de \"operar todo\" a dirigir un negocio propio. Necesitas estrategia pura y procesos accionables para que tu negocio sea sostenible y predecible sin depender de esfuerzo heroico.",
+    ctaLabel: "Quiero auditar mi negocio hoy →",
+    whatsappUrl: `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGES.tier3}`,
     color: "bg-gradient-to-r from-[#5D6D8F] to-[#E9CCDB]",
     emoji: "🚀",
   },
 ]
 
 function getTier(score: number): ResultTier {
-  if (score <= 21) return RESULT_TIERS[0]
-  if (score <= 30) return RESULT_TIERS[1]
+  if (score <= 26) return RESULT_TIERS[0]
+  if (score <= 37) return RESULT_TIERS[1]
   return RESULT_TIERS[2]
 }
 
@@ -48,10 +82,12 @@ type Step = "quiz" | "form" | "result"
 export default function Home() {
   const [selectedValues, setSelectedValues] = useState<{ [key: number]: number }>({})
   const [step, setStep] = useState<Step>("quiz")
-  const [score, setScore] = useState(0)
   const [tier, setTier] = useState<ResultTier>(RESULT_TIERS[0])
+  const [score, setScore] = useState(0)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const honeypotRef = React.useRef<HTMLInputElement>(null)
 
   const answeredCount = Object.keys(selectedValues).length
   const totalQuestions = survey.length
@@ -78,18 +114,89 @@ export default function Home() {
       })
       return
     }
+    
+    new Toast({
+      position: "bottom-right",
+      toastMsg: "¡Test completado exitosamente!",
+      autoCloseTime: 2000,
+      canClose: true,
+      showProgress: true,
+      pauseOnHover: true,
+      type: "success",
+      theme: "light",
+    })
+
     setStep("form")
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   // Step 2: submit name/email and show result
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    
+    // Honeypot check - if filled, silently succeed without doing anything
+    if (honeypotRef.current && honeypotRef.current.value) {
+      console.warn("Bot detectado")
+      return
+    }
+
     const totalScore = Object.values(selectedValues).reduce((acc, val) => acc + val, 0)
+    const resultTier = getTier(totalScore)
+    
+    // Format answers to send to Gladys
+    const formattedAnswers = survey.map((q) => {
+      const selectedValue = selectedValues[q.id]
+      const answerText = q.answers.find((a) => a.value === selectedValue)?.text || "No respondida"
+      return { question: q.question, answer: answerText, points: selectedValue }
+    })
+
     setScore(totalScore)
-    setTier(getTier(totalScore))
+    setTier(resultTier)
     setStep("result")
     window.scrollTo({ top: 0, behavior: "smooth" })
+
+    // Send email via API in background (don't await or block the UI)
+    fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        score: totalScore,
+        tierTitle: resultTier.title,
+        tierSubtitle: resultTier.subtitle,
+        tierDescription: resultTier.description,
+        tierEmoji: resultTier.emoji,
+        answers: formattedAnswers
+      }),
+    })
+    .then((res) => {
+      if (res.ok) {
+        new Toast({
+          position: "bottom-right",
+          toastMsg: "Diagnóstico enviado a tu correo exitosamente",
+          autoCloseTime: 4000,
+          canClose: true,
+          showProgress: true,
+          type: "success",
+          theme: "light",
+        })
+      } else {
+        new Toast({
+          position: "bottom-right",
+          toastMsg: "Hubo un error enviando el correo",
+          autoCloseTime: 4000,
+          canClose: true,
+          showProgress: true,
+          type: "error",
+          theme: "light",
+        })
+      }
+    })
+    .catch((err) => {
+      console.error("Error al enviar email:", err)
+    })
   }
 
   const handleRetry = () => {
@@ -120,10 +227,10 @@ export default function Home() {
           </div>
           <div className="flex flex-col items-center gap-3 mt-2">
             <h1 className="text-3xl lg:text-4xl font-extrabold text-[#5D6D8F] leading-tight">
-              ¿Estás Lista para Vivir del Coaching?
+              ¿Por qué no tienes clientes si eres coach certificado?
             </h1>
             <p className="text-base lg:text-lg text-gray-500 font-medium max-w-lg">
-              Descubre en qué etapa está tu negocio de coaching en solo 3 minutos.
+              Descubre en qué etapa estás como coach y qué te está frenando para tener clientes constantes.
             </p>
           </div>
         </div>
@@ -178,6 +285,31 @@ export default function Home() {
                 />
               </div>
 
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="phone" className="text-sm font-bold text-[#5D6D8F]">
+                  Tu número de WhatsApp (Opcional)
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  placeholder="+52 1 55 1234 5678"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
+                />
+              </div>
+
+              {/* Honeypot field (hidden from real users, bots will fill it) */}
+              <input
+                ref={honeypotRef}
+                type="text"
+                name="website_url"
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+
               <p className="text-xs text-gray-400 text-center">
                 🔒 Tu información es privada y nunca será compartida con terceros.
               </p>
@@ -206,8 +338,8 @@ export default function Home() {
             {/* Intro card */}
             <div className="bg-white/80 backdrop-blur-sm border border-[#E9CCDB]/40 rounded-2xl px-6 py-6 shadow-sm text-center flex flex-col gap-3">
               <p className="text-gray-600 text-sm lg:text-base leading-relaxed">
-                Responde estas <strong className="text-[#5D6D8F]">13 preguntas</strong> con total honestidad —
-                no hay respuestas correctas ni incorrectas. Al finalizar, obtendrás un diagnóstico de tu perfil como coach empresarial.
+                Responde estas <strong className="text-[#5D6D8F]">16 preguntas</strong> con total honestidad —
+                no hay respuestas correctas ni incorrectas. Al finalizar, obtendrás un diagnóstico de tu etapa como coach.
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <span className="text-xs bg-[#EEF2DC] text-[#5D6D8F] font-semibold px-3 py-1 rounded-full">⏱ ~3 minutos</span>

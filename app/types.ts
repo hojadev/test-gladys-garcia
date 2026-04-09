@@ -30,6 +30,10 @@ export type ResultTier = {
   title: string;
   subtitle: string;
   description: string;
+  risk: string;
+  nextStep: string;
+  ctaLabel: string;
+  whatsappUrl: string;
   color: string;
   emoji: string;
 }
