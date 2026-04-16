@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         const fields = [{ slug: "first_name", value: name }];
         if (phone) fields.push({ slug: "phone_number", value: phone });
         if (country) fields.push({ slug: "country", value: country });
+        if (obstacle) fields.push({ slug: "obstacle", value: obstacle });
 
         await fetch("https://api.systeme.io/api/contacts", {
           method: "POST",
