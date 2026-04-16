@@ -10,7 +10,7 @@ import ResultCard from "@/components/ResultCard"
 import DecorativeBlobs from "@/components/DecorativeBlobs"
 
 // WhatsApp number (with country code, no +)
-const WA_NUMBER = "5215543400295" // WhatsApp Mexico number provided by user
+const WA_NUMBER = "525543400295" // WhatsApp Mexico number provided by user
 
 // Per-tier contextualised WhatsApp links
 // The message body is pre-filled so Gladys knows which stage the lead is at
@@ -63,7 +63,7 @@ const RESULT_TIERS: ResultTier[] = [
       "El estancamiento. Si no profesionalizas tu estructura ahora, podrías quedarte en un esquema donde tus ingresos dependen siempre de cuánto trabajas.",
     nextStep:
       "Pasar de \"operar todo\" a dirigir un negocio propio. Necesitas estrategia pura y procesos accionables para que tu negocio sea sostenible y predecible sin depender de esfuerzo heroico.",
-    ctaLabel: "Quiero auditar mi negocio hoy →",
+    ctaLabel: "Quiero agendar mi sesión de claridad",
     whatsappUrl: `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGES.tier3}`,
     color: "bg-gradient-to-r from-[#5D6D8F] to-[#E9CCDB]",
     emoji: "🚀",
@@ -87,6 +87,8 @@ export default function Home() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
+  const [country, setCountry] = useState("")
+  const [obstacle, setObstacle] = useState("")
   const honeypotRef = React.useRef<HTMLInputElement>(null)
 
   const answeredCount = Object.keys(selectedValues).length
@@ -163,6 +165,8 @@ export default function Home() {
         name,
         email,
         phone,
+        country,
+        obstacle,
         score: totalScore,
         tierTitle: resultTier.title,
         tierSubtitle: resultTier.subtitle,
@@ -205,6 +209,9 @@ export default function Home() {
     setScore(0)
     setName("")
     setEmail("")
+    setPhone("")
+    setCountry("")
+    setObstacle("")
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -296,6 +303,38 @@ export default function Home() {
                   placeholder="+52 1 55 1234 5678"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="country" className="text-sm font-bold text-[#5D6D8F]">
+                  País de residencia
+                </label>
+                <input
+                  id="country"
+                  type="text"
+                  name="country"
+                  required
+                  placeholder="Ej. México"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="obstacle" className="text-sm font-bold text-[#5D6D8F]">
+                  ¿Cuál es tu mayor obstáculo hoy?
+                </label>
+                <input
+                  id="obstacle"
+                  type="text"
+                  name="obstacle"
+                  required
+                  placeholder="Ej. No sé cómo cobrar más"
+                  value={obstacle}
+                  onChange={(e) => setObstacle(e.target.value)}
                   className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
                 />
               </div>

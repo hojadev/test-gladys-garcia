@@ -5,7 +5,7 @@ import { db } from "@/lib/firebase";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, phone, score, tierTitle, tierSubtitle, tierDescription, tierEmoji, answers } = await req.json();
+    const { name, email, phone, country, obstacle, score, tierTitle, tierSubtitle, tierDescription, tierEmoji, answers } = await req.json();
 
     if (!name || !email) {
       return NextResponse.json({ error: "Nombre y correo son requeridos" }, { status: 400 });
@@ -17,6 +17,8 @@ export async function POST(req: Request) {
         name,
         email,
         phone: phone || null,
+        country: country || null,
+        obstacle: obstacle || null,
         score,
         tierTitle,
         tierSubtitle,
@@ -33,6 +35,7 @@ export async function POST(req: Request) {
       if (process.env.SYSTEME_API_KEY) {
         const fields = [{ slug: "first_name", value: name }];
         if (phone) fields.push({ slug: "phone_number", value: phone });
+        if (country) fields.push({ slug: "country", value: country });
 
         await fetch("https://api.systeme.io/api/contacts", {
           method: "POST",
@@ -54,7 +57,7 @@ export async function POST(req: Request) {
 
     // 2. Configuración dinámica por variables de entorno para envío de correos
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "smtp.titan.email",
+      host: process.env.SMTP_HOST || "smtpout.secureserver.net",
       port: Number(process.env.SMTP_PORT) || 465,
       secure: true,
       auth: {
@@ -110,6 +113,8 @@ export async function POST(req: Request) {
       : "<p>No se enviaron respuestas detalladas.</p>";
 
     const phoneStr = phone ? phone : "No proporcionado";
+    const countryStr = country ? country : "No proporcionado";
+    const obstacleStr = obstacle ? obstacle : "No respondido";
 
     const mailOptionsToAdmin = {
       from: `"Test Gladys Coach" <${process.env.TITAN_USER}>`,
@@ -127,6 +132,8 @@ export async function POST(req: Request) {
                 <li style="margin-bottom: 8px;">👤 <strong>Nombre:</strong> ${name}</li>
                 <li style="margin-bottom: 8px;">✉️ <strong>Correo:</strong> <a href="mailto:${email}" style="color: #5D6D8F;">${email}</a></li>
                 <li style="margin-bottom: 8px;">📱 <strong>Teléfono/WhatsApp:</strong> ${phoneStr}</li>
+                <li style="margin-bottom: 8px;">🌍 <strong>País de residencia:</strong> ${countryStr}</li>
+                <li style="margin-bottom: 8px;">🚧 <strong>Mayor obstáculo:</strong> ${obstacleStr}</li>
               </ul>
             </div>
 
