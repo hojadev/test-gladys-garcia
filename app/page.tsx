@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Toast from "typescript-toastify"
 import { survey } from "@/mocks/testMock"
 import { ResultTier } from "@/app/types"
@@ -87,9 +87,13 @@ export default function Home() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [country, setCountry] = useState("")
-  const [obstacle, setObstacle] = useState("")
+  const [newsletter, setNewsletter] = useState(false)
   const honeypotRef = React.useRef<HTMLInputElement>(null)
+
+  // Scroll to top whenever step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [step])
 
   const answeredCount = Object.keys(selectedValues).length
   const totalQuestions = survey.length
@@ -129,7 +133,6 @@ export default function Home() {
     })
 
     setStep("form")
-    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   // Step 2: submit name/email and show result
@@ -155,7 +158,6 @@ export default function Home() {
     setScore(totalScore)
     setTier(resultTier)
     setStep("result")
-    window.scrollTo({ top: 0, behavior: "smooth" })
 
     // Send email via API in background (don't await or block the UI)
     fetch("/api/send-email", {
@@ -165,14 +167,13 @@ export default function Home() {
         name,
         email,
         phone,
-        country,
-        obstacle,
         score: totalScore,
         tierTitle: resultTier.title,
         tierSubtitle: resultTier.subtitle,
         tierDescription: resultTier.description,
         tierEmoji: resultTier.emoji,
-        answers: formattedAnswers
+        answers: formattedAnswers,
+        newsletter
       }),
     })
     .then((res) => {
@@ -210,9 +211,7 @@ export default function Home() {
     setName("")
     setEmail("")
     setPhone("")
-    setCountry("")
-    setObstacle("")
-    window.scrollTo({ top: 0, behavior: "smooth" })
+    setNewsletter(false)
   }
 
   return (
@@ -254,9 +253,9 @@ export default function Home() {
           <form onSubmit={handleFormSubmit} className="w-full max-w-lg mx-auto flex flex-col gap-6">
             <div className="bg-white/90 backdrop-blur-sm border border-[#E9CCDB]/50 rounded-2xl px-8 py-8 shadow-md flex flex-col gap-6">
               <div className="text-center">
-                <p className="text-2xl font-extrabold text-[#5D6D8F]">¡Ya casi está! 🎉</p>
+                <p className="text-2xl font-extrabold text-[#5D6D8F]">¡Tu diagnóstico está casi listo! 🚀</p>
                 <p className="text-gray-500 text-sm mt-2 leading-relaxed">
-                  Ingresa tus datos para ver tu diagnóstico personalizado.
+                  Para enviártelo, déjame los datos que te solicito.
                 </p>
               </div>
 
@@ -292,49 +291,34 @@ export default function Home() {
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="phone" className="text-sm font-bold text-[#5D6D8F]">
-                  Tu número de WhatsApp (Opcional)
+              <div className="flex flex-col gap-3 bg-[#F9FAFB] border border-[#E9CCDB]/50 rounded-xl p-5">
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  ¿Te gustaría recibir mi news letter? Sin ruido, sin spam. Pura estrategia rentable. No comparto tus datos y puedes salirte con un solo click.
+                </p>
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={newsletter}
+                    onChange={(e) => setNewsletter(e.target.checked)}
+                    className="w-5 h-5 rounded border-[#E9CCDB] text-[#5D6D8F] focus:ring-[#5D6D8F] cursor-pointer"
+                  />
+                  <span className="text-sm font-bold text-[#5D6D8F] group-hover:text-[#4a5a7a] transition-colors">
+                    ¡Siii! Me apunto a la evolución
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex flex-col gap-1.5 bg-[#F9FAFB] border border-[#E9CCDB]/50 rounded-xl p-5">
+                <label htmlFor="phone" className="text-sm text-gray-600 leading-relaxed mb-2">
+                  Déjame tu celular para invitarte a nuestro grupo exclusivo donde comparto estrategias reales para dejar de ser un hobby y vivir de tu servicio.
                 </label>
                 <input
                   id="phone"
                   type="tel"
                   name="phone"
-                  placeholder="+52 1 55 1234 5678"
+                  placeholder="Número"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="country" className="text-sm font-bold text-[#5D6D8F]">
-                  País de residencia
-                </label>
-                <input
-                  id="country"
-                  type="text"
-                  name="country"
-                  required
-                  placeholder="Ej. México"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="obstacle" className="text-sm font-bold text-[#5D6D8F]">
-                  ¿Cuál es tu mayor obstáculo hoy?
-                </label>
-                <input
-                  id="obstacle"
-                  type="text"
-                  name="obstacle"
-                  required
-                  placeholder="Ej. No sé cómo cobrar más"
-                  value={obstacle}
-                  onChange={(e) => setObstacle(e.target.value)}
                   className="w-full border border-[#E9CCDB] rounded-xl px-4 py-3 text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5D6D8F]/40 focus:border-[#5D6D8F] transition-all bg-white"
                 />
               </div>

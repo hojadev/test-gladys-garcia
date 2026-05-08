@@ -5,7 +5,7 @@ import { db } from "@/lib/firebase";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, phone, country, obstacle, score, tierTitle, tierSubtitle, tierDescription, tierEmoji, answers } = await req.json();
+    const { name, email, phone, score, tierTitle, tierSubtitle, tierDescription, tierEmoji, answers, newsletter } = await req.json();
 
     if (!name || !email) {
       return NextResponse.json({ error: "Nombre y correo son requeridos" }, { status: 400 });
@@ -17,12 +17,11 @@ export async function POST(req: Request) {
         name,
         email,
         phone: phone || null,
-        country: country || null,
-        obstacle: obstacle || null,
         score,
         tierTitle,
         tierSubtitle,
         answers: answers || [],
+        newsletter: newsletter || false,
         createdAt: serverTimestamp()
       });
       console.log("Firebase: Registro guardado exitosamente");
@@ -35,8 +34,7 @@ export async function POST(req: Request) {
       if (process.env.SYSTEME_API_KEY) {
         const fields = [{ slug: "first_name", value: name }];
         if (phone) fields.push({ slug: "phone_number", value: phone });
-        if (country) fields.push({ slug: "country", value: country });
-        if (obstacle) fields.push({ slug: "obstacle", value: obstacle });
+        if (newsletter !== undefined) fields.push({ slug: "newsletter", value: newsletter ? "Sí" : "No" });
 
         await fetch("https://api.systeme.io/api/contacts", {
           method: "POST",
@@ -114,8 +112,6 @@ export async function POST(req: Request) {
       : "<p>No se enviaron respuestas detalladas.</p>";
 
     const phoneStr = phone ? phone : "No proporcionado";
-    const countryStr = country ? country : "No proporcionado";
-    const obstacleStr = obstacle ? obstacle : "No respondido";
 
     const mailOptionsToAdmin = {
       from: `"Test Gladys Coach" <${process.env.TITAN_USER}>`,
@@ -132,9 +128,8 @@ export async function POST(req: Request) {
               <ul style="list-style: none; padding: 0; margin: 0; font-size: 15px;">
                 <li style="margin-bottom: 8px;">👤 <strong>Nombre:</strong> ${name}</li>
                 <li style="margin-bottom: 8px;">✉️ <strong>Correo:</strong> <a href="mailto:${email}" style="color: #5D6D8F;">${email}</a></li>
-                <li style="margin-bottom: 8px;">📱 <strong>Teléfono/WhatsApp:</strong> ${phoneStr}</li>
-                <li style="margin-bottom: 8px;">🌍 <strong>País de residencia:</strong> ${countryStr}</li>
-                <li style="margin-bottom: 8px;">🚧 <strong>Mayor obstáculo:</strong> ${obstacleStr}</li>
+                <li style="margin-bottom: 8px;">📱 <strong>Teléfono/WhatsApp (Comunidad):</strong> ${phoneStr}</li>
+                <li style="margin-bottom: 8px;">💌 <strong>Newsletter:</strong> ${newsletter ? 'Sí aceptó' : 'No aceptó'}</li>
               </ul>
             </div>
 
